@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 export default function App() {
   return (
-    <View style={{ paddingTop: 50, paddingLeft: 20 }}>
+    <View style={{ paddingTop: 50, paddingLeft: 10 }}>
 
       <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', paddingBottom: 30 }}>
         <View style={{ backgroundColor: 'blue', height: 50, width: 50, borderRadius: 10 }}>
