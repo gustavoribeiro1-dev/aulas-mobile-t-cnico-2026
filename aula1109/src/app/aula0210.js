@@ -6,31 +6,38 @@ import * as SQLite from "expo-sqlite";
 
 // Fora do componente: o banco abre uma vez. O arquivo fica no aparelho —
 // fechar o app não apaga. A tela /lista continua só na memória.
-const db = SQLite.openDatabaseSync("tarefas.db");
+const db = SQLite.openDatabaseSync("flores.db");
 
 db.execSync(`
-  CREATE TABLE IF NOT EXISTS tarefas (
+  CREATE TABLE IF NOT EXISTS flores (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    texto TEXT NOT NULL,
-    tamanho TEXT NOT NULL
+    nome VARCHAR(50) NOT NULL,
+    cor VARCHAR(20) NOT NULL,
+    nomec VARCHAR(50) NOT NULL
   );
 `);
 
 function listar() {
-    return db.getAllSync("SELECT * FROM tarefas ORDER BY id DESC");
+    return db.getAllSync("SELECT * FROM flores ORDER BY id DESC");
 }
 
-function adicionar(texto, tamanho) {
-    db.runSync("INSERT INTO tarefas (texto, tamanho) VALUES (?, ?)", [texto, tamanho]);
+function adicionar(nome, cor, nomec) {
+    db.runSync("INSERT INTO flores (nome, cor, nomec) VALUES (?, ?, ?)", [nome, cor, nomec]);
 }
 function deletar(id) {
-    db.runSync("DELETE FROM tarefas WHERE id = ?", [id]);
+    db.runSync("DELETE FROM flores WHERE id = ?", [id])
+}
+
+function update(nome, cor, nomec, id) {
+    db.runSync("UPDATE flores SET nome = ?, cor = ?, nomec = ? WHERE id = ?", [nome, cor, nomec, id]);
 }
 
 export default function ListaDb() {
-    const [texto, setTexto] = useState("");
     const [lista, setLista] = useState([]);
-    const [tamanho, setTamanho] = useState("");
+    const [nome, setNome] = useState("");
+    const [cor, setCor] = useState("");
+    const [nomec, setNomec] = useState("");
+    const [idEditando, setIdEditando] = useState(0);
 
     function carregar() {
         setLista(listar());
@@ -40,11 +47,19 @@ export default function ListaDb() {
         carregar();
     }, []);
 
-    function salvar() {
-        adicionar(texto, tamanho);
-        setTexto("");
-        setTamanho("");
+    function salvarOuEditar() {
+        if (idEditando == 0) {
+            adicionar(nome, cor, nomec);
+        } else {
+            update(nome, cor, nomec, idEditando);
+            
+        }
+        setNome("");
+        setCor("");
+        setNomec("");
+        setIdEditando(0);
         carregar();
+
     }
 
     function remover(id) {
@@ -52,24 +67,37 @@ export default function ListaDb() {
         carregar();
     }
 
+    function editar(flor) {
+        setIdEditando(flor.id);
+        setNome(flor.nome);
+        setCor(flor.cor);
+        setNomec(flor.nomec);
+    }
+
     return (
         <SafeAreaView style={styles.tela} edges={["bottom"]}>
-            <Stack.Screen options={{ title: "Pastelaria" }} />
+            <Stack.Screen options={{ title: "Floricultura" }} />
 
             <TextInput
                 style={styles.campo}
-                value={texto}
-                onChangeText={setTexto}
-                placeholder="Nome do pastel"
+                value={nome}
+                onChangeText={setNome}
+                placeholder="Nome"
             />
             <TextInput
                 style={styles.campo}
-                value={tamanho}
-                onChangeText={setTamanho}
-                placeholder="Tamanho do pastel"
+                value={cor}
+                onChangeText={setCor}
+                placeholder="Cor Predominante"
+            />
+            <TextInput
+                style={styles.campo}
+                value={nomec}
+                onChangeText={setNomec}
+                placeholder="Nome Cientifico"
             />
 
-            <Button title="Adicionar" onPress={salvar} />
+            <Button title="Salvar" onPress={salvarOuEditar} />
 
             <FlatList
                 style={styles.lista}
@@ -77,8 +105,9 @@ export default function ListaDb() {
                 keyExtractor={(item) => String(item.id)}
                 renderItem={({ item }) =>
                     <View style={styles.itens}>
-                        <Text style={styles.item}>{item.texto} - {item.tamanho}G</Text>
+                        <Text style={styles.item}>{item.nome} - {item.cor} - {item.nomec}</Text>
                         <Button title="X" onPress={() => remover(item.id)}></Button>
+                        <Button title="Editar" onPress={() => editar(item)}></Button>
                     </View>
                 }
             />
