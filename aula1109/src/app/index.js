@@ -11,6 +11,7 @@ export default function App() {
         <Link href="/aula1408" style={styles.botao}>Aula 14/08</Link>
         <Link href="/aula2108" style={styles.botao}>Aula 21/08</Link>
         <Link href="/aula0409" style={styles.botao}>Aula 04/09</Link>
+        <Link href='/aula2509' style={styles.botao}>Aula 25/09</Link>
       </View>
       <StatusBar style="auto" />
     </SafeAreaView>
